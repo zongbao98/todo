@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To-Do</title>
+<style>
+  body { font-family: sans-serif; max-width: 420px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { text-align: center; }
+  form { display: flex; flex-wrap: wrap; gap: .5rem; }
+  input[type=text] { flex: 1; padding: .5rem; }
+  #theme { display: block; margin-left: auto; }
+  small { opacity: .7; display: block; }
+  .late small { color: #e33; opacity: 1; }
+  ul { list-style: none; padding: 0; }
+  li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #8884; }
+  li span { flex: 1; }
+  li.done span { text-decoration: line-through; color: #888; }
+</style>
+</head>
+<body>
+<button id="theme" type="button" aria-label="Toggle dark mode"></button>
+<h1>To-Do</h1>
+<form id="form">
+  <input type="text" id="text" placeholder="What needs doing?" aria-label="New to-do" autofocus>
+  <select id="cat" aria-label="Category">
+    <option>Work</option>
+    <option>Personal</option>
+    <option>Others</option>
+  </select>
+  <input type="date" id="due" aria-label="Due date">
+  <button>Add</button>
+</form>
+<ul id="list"></ul>
+<script>
+let todos;
+try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch { todos = []; }
+
+const list = document.getElementById('list');
+const input = document.getElementById('text');
+const cat = document.getElementById('cat');
+const due = document.getElementById('due');
+
+// color-scheme flips the page background, text and form controls in one go
+const theme = document.getElementById('theme');
+let current;
+function applyTheme(t) {
+  current = t;
+  document.documentElement.style.colorScheme = t;
+  theme.textContent = t === 'dark' ? '☀️' : '🌙'; // icon shows what a click switches to
+}
+let savedTheme;
+try { savedTheme = localStorage.getItem('theme'); } catch {}
+applyTheme(savedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+theme.onclick =() => {
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+  try { localStorage.setItem('theme', current); } catch {}
+};
+
+function update() {
+  render();
+  // shortcut: if storage is blocked (some previews/private modes), items work but don't persist
+  try { localStorage.setItem('todos', JSON.stringify(todos)); } catch {}
+}
+
+function render() {
+  list.textContent = '';
+  const today = new Date().toLocaleDateString('sv'); // local YYYY-MM-DD
+  todos.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = (t.done ? 'done ' : '') + (!t.done && t.due && t.due < today ? 'late' : '');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = t.done;
+    cb.setAttribute('aria-label', 'Done: ' + t.text);
+    cb.onchange = () => { t.done = cb.checked; update(); };
+
+    const span = document.createElement('span');
+    span.textContent = t.text;
+    const meta = [t.cat, t.due && 'due ' + t.due].filter(Boolean).join(' · ');
+    if (meta) {
+      const small = document.createElement('small');
+      small.textContent = meta;
+      span.append(small);
+    }
+
+    const edit = document.createElement('button');
+    edit.textContent = '✏️';
+    edit.setAttribute('aria-label', 'Edit: ' + t.text);
+    edit.onclick = () => {
+      const text = prompt('Edit item', t.text);
+      if (text === null || !text.trim()) return; // cancel or blank keeps the old text
+      t.text = text.trim();
+      update();
+    };
+
+    const del = document.createElement('button');
+    del.textContent = '🗑️';
+    del.setAttribute('aria-label', 'Delete: ' + t.text);
+    del.onclick = () => { todos.splice(i, 1); update(); };
+
+    li.append(cb, span, edit, del);
+    list.append(li);
+  });
+}
+
+document.getElementById('form').onsubmit = e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  todos.push({ text, done: false, cat: cat.value.trim(), due: due.value });
+  input.value = due.value = ''; // category keeps its selection for the next item
+  update();
+};
+
+render();
+</script>
+</body>
+</html>

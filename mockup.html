@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html><meta charset='utf-8'><style>body{margin:0;padding:24px;background:#e8e8ec;font-family:sans-serif;display:flex;gap:40px;justify-content:center;align-items:flex-start;flex-wrap:wrap}h1{flex-basis:100%;text-align:center;margin:0}h2{font-size:1rem;margin:0 0 .5rem}.c{text-align:center}.p{background:#111;padding:12px;display:inline-block}iframe{border:0;background:#fff;display:block}</style><h1>To-Do App Mock-up</h1><div class='c'><h2>iPhone 15 (390 x 844)</h2><div class='p' style='border-radius:52px'><iframe style='width:390px;height:844px;border-radius:40px' srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<meta charset=&quot;utf-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;>
+<title>To-Do</title>
+<style>
+  body { font-family: sans-serif; max-width: 420px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { text-align: center; }
+  form { display: flex; flex-wrap: wrap; gap: .5rem; }
+  input[type=text] { flex: 1; padding: .5rem; }
+  #theme { display: block; margin-left: auto; }
+  small { opacity: .7; display: block; }
+  .late small { color: #e33; opacity: 1; }
+  ul { list-style: none; padding: 0; }
+  li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #8884; }
+  li span { flex: 1; }
+  li.done span { text-decoration: line-through; color: #888; }
+</style>
+</head>
+<body>
+<button id=&quot;theme&quot; type=&quot;button&quot; aria-label=&quot;Toggle dark mode&quot;></button>
+<h1>To-Do</h1>
+<form id=&quot;form&quot;>
+  <input type=&quot;text&quot; id=&quot;text&quot; placeholder=&quot;What needs doing?&quot; aria-label=&quot;New to-do&quot; autofocus>
+  <select id=&quot;cat&quot; aria-label=&quot;Category&quot;>
+    <option>Work</option>
+    <option>Personal</option>
+    <option>Others</option>
+  </select>
+  <input type=&quot;date&quot; id=&quot;due&quot; aria-label=&quot;Due date&quot;>
+  <button>Add</button>
+</form>
+<ul id=&quot;list&quot;></ul>
+<script>
+let todos;
+try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch { todos = []; }
+todos=[{text:'Finish quarterly report with a fairly long title to test wrapping',done:false,cat:'Work',due:'2026-11-20'},{text:'Buy groceries',done:true,cat:'Personal',due:''},{text:'Call mom',done:false,cat:'Personal',due:'2026-12-01'}];
+
+const list = document.getElementById('list');
+const input = document.getElementById('text');
+const cat = document.getElementById('cat');
+const due = document.getElementById('due');
+
+// color-scheme flips the page background, text and form controls in one go
+const theme = document.getElementById('theme');
+let current;
+function applyTheme(t) {
+  current = t;
+  document.documentElement.style.colorScheme = t;
+  theme.textContent = t === 'dark' ? '☀️' : '🌙'; // icon shows what a click switches to
+}
+let savedTheme;
+try { savedTheme = localStorage.getItem('theme'); } catch {}
+applyTheme(savedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+theme.onclick =() => {
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+  try { localStorage.setItem('theme', current); } catch {}
+};
+
+function update() {
+  render();
+  // shortcut: if storage is blocked (some previews/private modes), items work but don't persist
+  try { localStorage.setItem('todos', JSON.stringify(todos)); } catch {}
+}
+
+function render() {
+  list.textContent = '';
+  const today = new Date().toLocaleDateString('sv'); // local YYYY-MM-DD
+  todos.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = (t.done ? 'done ' : '') + (!t.done &amp;&amp; t.due &amp;&amp; t.due < today ? 'late' : '');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = t.done;
+    cb.setAttribute('aria-label', 'Done: ' + t.text);
+    cb.onchange = () => { t.done = cb.checked; update(); };
+
+    const span = document.createElement('span');
+    span.textContent = t.text;
+    const meta = [t.cat, t.due &amp;&amp; 'due ' + t.due].filter(Boolean).join(' · ');
+    if (meta) {
+      const small = document.createElement('small');
+      small.textContent = meta;
+      span.append(small);
+    }
+
+    const edit = document.createElement('button');
+    edit.textContent = '✏️';
+    edit.setAttribute('aria-label', 'Edit: ' + t.text);
+    edit.onclick = () => {
+      const text = prompt('Edit item', t.text);
+      if (text === null || !text.trim()) return; // cancel or blank keeps the old text
+      t.text = text.trim();
+      update();
+    };
+
+    const del = document.createElement('button');
+    del.textContent = '🗑️';
+    del.setAttribute('aria-label', 'Delete: ' + t.text);
+    del.onclick = () => { todos.splice(i, 1); update(); };
+
+    li.append(cb, span, edit, del);
+    list.append(li);
+  });
+}
+
+document.getElementById('form').onsubmit = e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  todos.push({ text, done: false, cat: cat.value.trim(), due: due.value });
+  input.value = due.value = ''; // category keeps its selection for the next item
+  update();
+};
+
+render();
+</script>
+</body>
+</html>
+"></iframe></div></div><div class='c'><h2>Galaxy S25 (360 x 780)</h2><div class='p' style='border-radius:40px'><iframe style='width:360px;height:780px;border-radius:28px' srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<meta charset=&quot;utf-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;>
+<title>To-Do</title>
+<style>
+  body { font-family: sans-serif; max-width: 420px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { text-align: center; }
+  form { display: flex; flex-wrap: wrap; gap: .5rem; }
+  input[type=text] { flex: 1; padding: .5rem; }
+  #theme { display: block; margin-left: auto; }
+  small { opacity: .7; display: block; }
+  .late small { color: #e33; opacity: 1; }
+  ul { list-style: none; padding: 0; }
+  li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #8884; }
+  li span { flex: 1; }
+  li.done span { text-decoration: line-through; color: #888; }
+</style>
+</head>
+<body>
+<button id=&quot;theme&quot; type=&quot;button&quot; aria-label=&quot;Toggle dark mode&quot;></button>
+<h1>To-Do</h1>
+<form id=&quot;form&quot;>
+  <input type=&quot;text&quot; id=&quot;text&quot; placeholder=&quot;What needs doing?&quot; aria-label=&quot;New to-do&quot; autofocus>
+  <select id=&quot;cat&quot; aria-label=&quot;Category&quot;>
+    <option>Work</option>
+    <option>Personal</option>
+    <option>Others</option>
+  </select>
+  <input type=&quot;date&quot; id=&quot;due&quot; aria-label=&quot;Due date&quot;>
+  <button>Add</button>
+</form>
+<ul id=&quot;list&quot;></ul>
+<script>
+let todos;
+try { todos = JSON.parse(localStorage.getItem('todos')) || []; } catch { todos = []; }
+todos=[{text:'Finish quarterly report with a fairly long title to test wrapping',done:false,cat:'Work',due:'2026-11-20'},{text:'Buy groceries',done:true,cat:'Personal',due:''},{text:'Call mom',done:false,cat:'Personal',due:'2026-12-01'}];
+
+const list = document.getElementById('list');
+const input = document.getElementById('text');
+const cat = document.getElementById('cat');
+const due = document.getElementById('due');
+
+// color-scheme flips the page background, text and form controls in one go
+const theme = document.getElementById('theme');
+let current;
+function applyTheme(t) {
+  current = t;
+  document.documentElement.style.colorScheme = t;
+  theme.textContent = t === 'dark' ? '☀️' : '🌙'; // icon shows what a click switches to
+}
+let savedTheme;
+try { savedTheme = localStorage.getItem('theme'); } catch {}
+applyTheme(savedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+theme.onclick =() => {
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+  try { localStorage.setItem('theme', current); } catch {}
+};
+
+function update() {
+  render();
+  // shortcut: if storage is blocked (some previews/private modes), items work but don't persist
+  try { localStorage.setItem('todos', JSON.stringify(todos)); } catch {}
+}
+
+function render() {
+  list.textContent = '';
+  const today = new Date().toLocaleDateString('sv'); // local YYYY-MM-DD
+  todos.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = (t.done ? 'done ' : '') + (!t.done &amp;&amp; t.due &amp;&amp; t.due < today ? 'late' : '');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = t.done;
+    cb.setAttribute('aria-label', 'Done: ' + t.text);
+    cb.onchange = () => { t.done = cb.checked; update(); };
+
+    const span = document.createElement('span');
+    span.textContent = t.text;
+    const meta = [t.cat, t.due &amp;&amp; 'due ' + t.due].filter(Boolean).join(' · ');
+    if (meta) {
+      const small = document.createElement('small');
+      small.textContent = meta;
+      span.append(small);
+    }
+
+    const edit = document.createElement('button');
+    edit.textContent = '✏️';
+    edit.setAttribute('aria-label', 'Edit: ' + t.text);
+    edit.onclick = () => {
+      const text = prompt('Edit item', t.text);
+      if (text === null || !text.trim()) return; // cancel or blank keeps the old text
+      t.text = text.trim();
+      update();
+    };
+
+    const del = document.createElement('button');
+    del.textContent = '🗑️';
+    del.setAttribute('aria-label', 'Delete: ' + t.text);
+    del.onclick = () => { todos.splice(i, 1); update(); };
+
+    li.append(cb, span, edit, del);
+    list.append(li);
+  });
+}
+
+document.getElementById('form').onsubmit = e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  todos.push({ text, done: false, cat: cat.value.trim(), due: due.value });
+  input.value = due.value = ''; // category keeps its selection for the next item
+  update();
+};
+
+render();
+</script>
+</body>
+</html>
+"></iframe></div></div>
